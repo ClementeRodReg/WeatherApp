@@ -1,0 +1,21 @@
+﻿<div class="card border-dark mb-3" style="max-width:50rem;">
+    <div class="text-center">
+        <div class="card-header">@Day</div>
+        <div class="card-body">
+            <h5> @tempMin ºC / @tempMax ºC</h5>
+            <p class="card-text">@WeatherCode.Convert(coso)</p>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public String Day { get; set; }
+    [Parameter]
+    public float tempMax { get; set; }
+    [Parameter]
+    public float tempMin { get; set; }
+    [Parameter]
+    public int coso { get; set; }
+}

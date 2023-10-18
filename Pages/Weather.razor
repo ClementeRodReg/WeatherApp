@@ -1,0 +1,66 @@
+﻿@page "/weather"
+@using System.Globalization;
+@using WeatherApp.Models;
+@inject HttpClient Client;
+
+<h3>Weather App</h3>
+
+<div class="input-group mb-3 mt-3">
+    <input class="form-control" type="text" @bind=city placeholder="City Name" />
+    <div>
+        <button class="btn btn-outline-secondary" @onclick=GetWeather type="button">Search</button>
+    </div>
+</div>
+
+@if (weatherData != null)
+{
+    <div class="text-center">
+        <p class="display-5">@city</p>
+        <p class="display-1">@weatherData.current.temperature_2m ºC</p>
+        <p class="display-6">@WeatherCode.Convert(@weatherData.daily.weathercode[0])</p>
+    </div>
+    @for (int i = 0; i < weatherData.daily.time.Length; i++)
+    {
+        <div class="card-group" style="display:flex;align-items: center;justify-content: center">
+            <WeatherCard Day="@weatherData.daily.time[i]"
+                         tempMax="@weatherData.daily.temperature_2m_max[i]"
+                         tempMin="@weatherData.daily.temperature_2m_min[i]"
+                         coso="@weatherData.daily.weathercode[i]"></WeatherCard>
+        </div>
+    }
+}
+else
+{
+    <div class="text-center">
+        <p class="display-5">New York</p>
+        <p class="display-1">5ºC</p>
+        <p class="display-6">Rainy</p>
+    </div>
+}
+
+
+
+
+@code {
+    string city = "";
+    float lat;
+    float lon;
+    WeatherModel? weatherData;
+    async Task GetWeather()
+    {
+        var cityData = await GetCityData();//aqui conseguimos la latitud y longitud de la ciudad
+        lat = cityData.results[0].lat;
+        lon = cityData.results[0].lon;
+
+        CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+        weatherData = await Client.GetFromJsonAsync<WeatherModel>(EndPoints.getWeatherEndPoint(lat, lon));
+        CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-ES");
+    }
+
+    async Task<CityData> GetCityData()
+    {
+        var cityData = await Client.GetFromJsonAsync<CityData>(EndPoints.GetGeoApifyEndPoint(city));
+        return cityData;
+    }
+
+}
